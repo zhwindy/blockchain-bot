@@ -72,20 +72,25 @@ class Rpc:
         amount = int(amount, 16) if isinstance(amount, str) else int(amount)
         gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
         # gas_price = int(self.get_gas_price()['result'], 16)
+        transfer_amount = amount - (gaslimit * 200000000)
+        if transfer_amount < 0:
+            print(100*">", "余额不足")
+            return False
         nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
         tx = {
             'from': account.address,
             'to': to,
-            'value': amount,
+            'value': transfer_amount,
             'nonce': nonce,
             'gas': gaslimit,
             "maxFeePerGas": 100000000,
-            "maxPriorityFeePerGas": 300000000,
+            "maxPriorityFeePerGas": 1000000000,
             "type": "0x2",
             'chainId': self.chainid
         }
         if kw:
             tx.update(**kw)
+        print(tx)
         signed = account.signTransaction(tx)
         print("txid:", signed.hash.hex())
         return self.send_raw_transaction(signed.rawTransaction.hex())
@@ -118,18 +123,31 @@ def claim(privkey):
     return res
 
 
+def detect_balance(rpc, address):
+    """
+    检测余额
+    """
+    rt = rpc.get_balance(address)
+    res = rt['result']
+    balance = int(res, base=16)
+    if balance > 8000000000000:
+        return balance
+    return False
+
+
 def transfer(privkey, address):
     """
     转账
     """
-    api = "http://127.0.0.1:8547"
-    rpc = Rpc(api=api)
     account = web3.Account.from_key(privkey)
-    rt = rpc.get_balance(account.address)
-    balance = rt['result']
-    # unit_2 = balance[2:].rjust(64,'0')
-    res = rpc.transfer(account, address, balance, gaslimit=20000)
-    return res
+    # api = "http://127.0.0.1:8547"
+    api = "https://open-platform.nodereal.io/a4a9f892480d45e395f93945c4b77c6e/arbitrum-nitro"
+    rpc = Rpc(api=api)
+    balance = detect_balance(rpc, account.address)
+    if balance:
+        res = rpc.transfer(account, address, balance, gaslimit=50000)
+        print(res)
+    return True
 
 
 def collection(privkey, address):
@@ -155,8 +173,9 @@ def collection(privkey, address):
 
 
 def main_transfer():
-    pk = ''
-    address = ''
+    pk = 'ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+    address = '0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C'
+    print(100*"*", "start")
     while True:
         try:
             transfer(pk, address)
@@ -164,6 +183,7 @@ def main_transfer():
             print(e)
             time.sleep(0.1)
             continue
+        print(100*"*", "end")
 
 if __name__ == '__main__':
     pk = '' # 你的私钥
@@ -173,6 +193,7 @@ if __name__ == '__main__':
     # res = claim(pk)
     # print(res)
     # 归集
-    address = ''
+    # address = ''
     # res = collection(pk, address)
-    transfer(pk, address)
+    # transfer(pk, address)
+    main_transfer()
