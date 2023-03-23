@@ -2,10 +2,6 @@
 import web3
 import requests
 
-headers = {
-    'content-type': 'application/json',
-    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
-}
 
 class Rpc:
     """
@@ -20,7 +16,7 @@ class Rpc:
     def get_current_block(self):
         """获取最新区块"""
         data = {"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}
-        res = requests.post(self.api, json=data, headers=headers, proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
 
     def get_block_detail(self, number):
@@ -28,47 +24,47 @@ class Rpc:
         if isinstance(number, int):
             number = hex(number)
         data = {"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":[number,True],"id":1}
-        res = requests.post(self.api, json=data, headers=headers, proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
 
     def get_transaction(self, txhash):
         """获取的交易详情"""
         data = {"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":[txhash],"id":1}
-        res = requests.post(self.api, json=data, headers=headers, proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
 
     def get_gas_price(self):
         """获取gasprice"""
         data = {"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":1}
-        res = requests.post(self.api, json=data, headers=headers, proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
 
     def get_gas_limit(self, to, data):
         """call计算gas"""
         data = {"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"to": to, "data": data}],"id":1}
-        res = requests.post(self.api, json=data, headers=headers, proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
 
     def get_transaction_count_by_address(self, address):
         data = {"jsonrpc":"2.0","method":"eth_getTransactionCount","params":[address,'latest'],"id":1}
-        res = requests.post(self.api, json=data, headers=headers, proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
 
     def call(self, to, data):
         data = {"jsonrpc":"2.0","method":"eth_call","params":[{"to": to, "data": data}, "latest"],"id":1}
-        res = requests.post(self.api, json=data, headers=headers, proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
 
     def send_raw_transaction(self, hex):
         """广播交易"""
         data = {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[hex],"id":1}
-        res = requests.post(self.api, json=data, headers=headers,  proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
 
     def get_balance(self, address):
         """获取余额"""
         data = {"jsonrpc":"2.0","method":"eth_getBalance","params":[address, 'latest'],"id":1}
-        res = requests.post(self.api, json=data, headers=headers, proxies=self.proxies, timeout=self.timeout)
+        res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()#(int(res.json()['result'], 16)) / math.pow(10,18)
 
     def transfer(self, account, to, amount, gaslimit, **kw):
@@ -96,7 +92,7 @@ def query(privkey):
     查询数量
     """
     rpc = Rpc()
-    claim_contract = '0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9' # 领取合约地址
+    claim_contract = '0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9'
     account = web3.Account.from_key(privkey)
     data = '0x84d24226000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266'
     to = web3.Web3.toChecksumAddress(claim_contract)
@@ -110,7 +106,7 @@ def claim(privkey):
     """
     rpc = Rpc()
     # https://arbiscan.io/address/0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9
-    claim_contract = '0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9' # 领取合约地址
+    claim_contract = '0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9' # clain合约地址
     data = '0x4e71d92d'
     account = web3.Account.from_key(privkey)
     to = web3.Web3.toChecksumAddress(claim_contract)
