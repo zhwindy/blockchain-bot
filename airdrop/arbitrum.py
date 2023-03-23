@@ -1,4 +1,5 @@
 #encoding=utf-8
+import time
 import web3
 import requests
 
@@ -70,20 +71,23 @@ class Rpc:
     def transfer(self, account, to, amount, gaslimit, **kw):
         amount = int(amount, 16) if isinstance(amount, str) else int(amount)
         gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
-        gasprice = int(self.get_gas_price()['result'], 16)
+        # gas_price = int(self.get_gas_price()['result'], 16)
         nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
         tx = {
             'from': account.address,
-            'value': amount,
             'to': to,
-            'gas': gaslimit,
-            'gasPrice': gasprice,
+            'value': amount,
             'nonce': nonce,
+            'gas': gaslimit,
+            "maxFeePerGas": 100000000,
+            "maxPriorityFeePerGas": 300000000,
+            "type": "0x2",
             'chainId': self.chainid
         }
         if kw:
             tx.update(**kw)
         signed = account.signTransaction(tx)
+        print("txid:", signed.hash.hex())
         return self.send_raw_transaction(signed.rawTransaction.hex())
 
 
@@ -104,13 +108,27 @@ def claim(privkey):
     """
     领取
     """
+    account = web3.Account.from_key(privkey)
     rpc = Rpc()
     # https://arbiscan.io/address/0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9
     claim_contract = '0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9' # clain合约地址
     data = '0x4e71d92d'
-    account = web3.Account.from_key(privkey)
     to = web3.Web3.toChecksumAddress(claim_contract)
-    res = rpc.transfer(account, to, 0, gaslimit=455210, data=data)
+    res = rpc.transfer(account, to, 0, gaslimit=20000, data=data)
+    return res
+
+
+def transfer(privkey, address):
+    """
+    转账
+    """
+    api = "http://127.0.0.1:8547"
+    rpc = Rpc(api=api)
+    account = web3.Account.from_key(privkey)
+    rt = rpc.get_balance(account.address)
+    balance = rt['result']
+    # unit_2 = balance[2:].rjust(64,'0')
+    res = rpc.transfer(account, address, balance, gaslimit=20000)
     return res
 
 
@@ -135,14 +153,26 @@ def collection(privkey, address):
     res = rpc.transfer(account, to, 0, gaslimit=455210, data=data)
     return res
 
+
+def main_transfer():
+    pk = ''
+    address = ''
+    while True:
+        try:
+            transfer(pk, address)
+        except Exception as e:
+            print(e)
+            time.sleep(0.1)
+            continue
+
 if __name__ == '__main__':
     pk = '' # 你的私钥
     # 查询
-    print(query(pk))
+    # print(query(pk))
     # 领取
-    res = claim(pk)
-    print(res)
-    # 归集
-    # address = '' # arb钱包地址
-    # res = collection(pk, address)
+    # res = claim(pk)
     # print(res)
+    # 归集
+    address = ''
+    # res = collection(pk, address)
+    transfer(pk, address)

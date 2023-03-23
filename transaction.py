@@ -50,7 +50,7 @@ def generate_1559_tx(from_address, to_address, value, gas_limit=21000, gas_price
         "nonce": nonce,
         "gas": gas_limit,
         "maxFeePerGas": gas_price_amount,
-        "maxPriorityFeePerGas": 1000000000,  # 1Gwei
+        "maxPriorityFeePerGas": 5000000000,  # 1Gwei
         "chainId": CHAIN_ID,
         "type": tx_type,  # 选填
         "data": data
