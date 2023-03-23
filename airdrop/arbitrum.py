@@ -72,7 +72,7 @@ class Rpc:
         amount = int(amount, 16) if isinstance(amount, str) else int(amount)
         gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
         # gas_price = int(self.get_gas_price()['result'], 16)
-        transfer_amount = amount - (gaslimit * 200000000)
+        transfer_amount = amount - (gaslimit * 100000000)
         if transfer_amount < 0:
             print(100*">", "余额不足")
             return False
@@ -145,7 +145,7 @@ def transfer(privkey, address):
     rpc = Rpc(api=api)
     balance = detect_balance(rpc, account.address)
     if balance:
-        res = rpc.transfer(account, address, balance, gaslimit=50000)
+        res = rpc.transfer(account, address, balance, gaslimit=100000)
         print(res)
     return True
 
@@ -183,7 +183,6 @@ def main_transfer():
             print(e)
             time.sleep(0.1)
             continue
-        print(100*"*", "end")
 
 if __name__ == '__main__':
     pk = '' # 你的私钥
