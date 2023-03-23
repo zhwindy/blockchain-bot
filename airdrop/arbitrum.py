@@ -140,7 +140,7 @@ def collection(privkey, address):
     return res
 
 if __name__ == '__main__':
-    pk = 'ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80' # 你的私钥
+    pk = '' # 你的私钥
     # 查询
     print(query(pk))
     # 领取
