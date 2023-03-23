@@ -2,6 +2,7 @@
 import time
 import web3
 import requests
+from decimal import Decimal
 
 
 class Rpc:
@@ -71,8 +72,9 @@ class Rpc:
     def transfer(self, account, to, amount, gaslimit, **kw):
         amount = int(amount, 16) if isinstance(amount, str) else int(amount)
         gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
-        # gas_price = int(self.get_gas_price()['result'], 16)
-        transfer_amount = amount - (gaslimit * 100000000)
+        gas_price = web3.Web3.toWei(Decimal('0.1'), 'gwei')
+        max_gas_price = web3.Web3.toWei(Decimal('0.1'), 'gwei')
+        transfer_amount = amount - (gaslimit * gas_price)
         if transfer_amount < 0:
             print(100*">", "余额不足")
             return False
@@ -83,8 +85,8 @@ class Rpc:
             'value': transfer_amount,
             'nonce': nonce,
             'gas': gaslimit,
-            "maxFeePerGas": 100000000,
-            "maxPriorityFeePerGas": 1000000000,
+            "maxFeePerGas": gas_price,
+            "maxPriorityFeePerGas": max_gas_price,
             "type": "0x2",
             'chainId': self.chainid
         }
@@ -94,6 +96,32 @@ class Rpc:
         signed = account.signTransaction(tx)
         print("txid:", signed.hash.hex())
         return self.send_raw_transaction(signed.rawTransaction.hex())
+    
+    def transfer_token(self, account, to, amount, gaslimit, **kw):
+        amount = int(amount, 16) if isinstance(amount, str) else int(amount)
+        gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
+        gas_price = web3.Web3.toWei(Decimal('0.1'), 'gwei')
+        max_gas_price = web3.Web3.toWei(Decimal('0.1'), 'gwei')
+        nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
+        tx = {
+            'from': account.address,
+            'to': to,
+            'value': amount,
+            'nonce': nonce,
+            'gas': gaslimit,
+            "maxFeePerGas": gas_price,
+            "maxPriorityFeePerGas": max_gas_price,
+            "type": "0x2",
+            'chainId': self.chainid
+        }
+        if kw:
+            tx.update(**kw)
+        print(tx)
+        signed = account.signTransaction(tx)
+        print("txid:", signed.hash.hex())
+        return self.send_raw_transaction(signed.rawTransaction.hex())
+
+
 
 
 def query(privkey):
@@ -130,6 +158,7 @@ def detect_balance(rpc, address):
     rt = rpc.get_balance(address)
     res = rt['result']
     balance = int(res, base=16)
+    print(100*"=", balance)
     if balance > 8000000000000:
         return balance
     return False
@@ -145,7 +174,7 @@ def transfer(privkey, address):
     rpc = Rpc(api=api)
     balance = detect_balance(rpc, account.address)
     if balance:
-        res = rpc.transfer(account, address, balance, gaslimit=100000)
+        res = rpc.transfer(account, address, balance, gaslimit=300000)
         print(res)
     return True
 
@@ -184,6 +213,31 @@ def main_transfer():
             time.sleep(0.1)
             continue
 
+
+def main_transfer_token():
+    # api = "http://127.0.0.1:8547"
+    api = "https://open-platform.nodereal.io/a4a9f892480d45e395f93945c4b77c6e/arbitrum-nitro"
+    rpc = Rpc(api=api)
+    pk = 'ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+    address = '0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C'
+
+    addr_1 = address.lower()[2:].rjust(64,'0')
+    data = '0xa9059cbb' + addr_1 + "0000000000000000000000000000000000000000000000b02ecf74c313880000"
+    account = web3.Account.from_key(pk)
+
+    token = '0x912ce59144191c1204e64559fe8253a0e49e6548' # arb 代币地址
+    to = web3.Web3.toChecksumAddress(token)
+    print(100*"*", "start")
+    while True:
+        try:
+            res = rpc.transfer_token(account, to, 0, gaslimit=355210, data=data)
+            print(res)
+        except Exception as e:
+            print(e)
+            time.sleep(0.1)
+            continue
+
+
 if __name__ == '__main__':
     pk = '' # 你的私钥
     # 查询
@@ -195,4 +249,5 @@ if __name__ == '__main__':
     # address = ''
     # res = collection(pk, address)
     # transfer(pk, address)
-    main_transfer()
+    # main_transfer()
+    main_transfer_token()
