@@ -99,7 +99,7 @@ def sign_155_tx(transaction):
     print("sender: ", sender)
 
 
-def eth_key_obj(private_key="ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"):
+def eth_key_obj(private_key=""):
     acct = Account.from_key(private_key)
     key_obj = acct._key_obj
     return key_obj
