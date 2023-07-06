@@ -20,11 +20,9 @@ private_key_01 = ""
 private_key_02 = ""
 
 TO_ADDRESS_NULL = None
-TO_ADDRESS_01 = "0x7fa31d53Aaa649Bbf08ba2fEa0aE5B6b71cd2ccd"
-TO_ADDRESS_02 = "0x13eDC33D36086422D547693c21b365259e4823bc"
-TO_ADDRESS_03 = "0xB46AAe4592b1C29DFB71D128169aC4980dD6E325"
-TO_ADDRESS_04 = "0xBA9193FE0768008D1928A23a31F1dDB0B1D2eC53"
-TO_ADDRESS_05 = "0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C"
+TO_ADDRESS_01 = "0xB46AAe4592b1C29DFB71D128169aC4980dD6E325"
+TO_ADDRESS_02 = "0xBA9193FE0768008D1928A23a31F1dDB0B1D2eC53"
+TO_ADDRESS_03 = "0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C"
 
 
 def check_address(address):
@@ -32,13 +30,16 @@ def check_address(address):
         address = Web3.toChecksumAddress(address)
     return address
 
+
 def get_nonce(address):
     nonce = w3.eth.get_transaction_count(address)
     return nonce
 
+
 def get_data(text):
     data = Web3.toBytes(text=text)
     return data
+
 
 def generate_1559_tx(from_address, to_address, value, gas_limit=21000, gas_price=None, text='', tx_type="0x2"):
     nonce = get_nonce(from_address)
@@ -67,6 +68,7 @@ def generate_1559_tx(from_address, to_address, value, gas_limit=21000, gas_price
     }
     return transaction
 
+
 def generate_old_tx(from_address, to_address, value, gas_limit=21000, gas_price=None, text=''):
     nonce = get_nonce(from_address)
     data = get_data(text)
@@ -82,11 +84,13 @@ def generate_old_tx(from_address, to_address, value, gas_limit=21000, gas_price=
     }
     return transaction
 
+
 def sign_tx(trancaction, private_key):
     signed_txn = w3.eth.account.sign_transaction(trancaction, private_key)
     print("signed_raw_tx:", signed_txn.rawTransaction.hex())
     print("singed_txid", signed_txn.hash.hex())
     return signed_txn
+
 
 def main():
     value = Web3.toWei(Decimal('0.00000012'), 'ether')
