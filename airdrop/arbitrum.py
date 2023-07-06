@@ -42,7 +42,7 @@ class Rpc:
         return res.json()
 
     def get_gas_limit(self, to, data):
-        """call计算gas"""
+        """call估算gas"""
         data = {"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"to": to, "data": data}],"id":1}
         res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()
@@ -120,8 +120,6 @@ class Rpc:
         signed = account.signTransaction(tx)
         print("txid:", signed.hash.hex())
         return self.send_raw_transaction(signed.rawTransaction.hex())
-
-
 
 
 def query(privkey):
@@ -225,9 +223,8 @@ def main_transfer_token():
     data = '0xa9059cbb' + addr_1 + "0000000000000000000000000000000000000000000000b02ecf74c313880000"
     account = web3.Account.from_key(pk)
 
-    token = '0x912ce59144191c1204e64559fe8253a0e49e6548' # arb 代币地址
+    token = '0x912ce59144191c1204e64559fe8253a0e49e6548' # arb 代币合约
     to = web3.Web3.toChecksumAddress(token)
-    print(100*"*", "start")
     while True:
         try:
             res = rpc.transfer_token(account, to, 0, gaslimit=355210, data=data)

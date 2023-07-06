@@ -139,6 +139,7 @@ def collection(privkey, address):
     res = rpc.transfer(account, to, 0, gaslimit=455210, data=data)
     return res
 
+
 if __name__ == '__main__':
     pk = '' # 你的私钥
     # 查询
