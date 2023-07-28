@@ -6,10 +6,10 @@ from decimal import Decimal
 ENV = 'main'
 
 if ENV == 'main':
-    NODE_URL = 'https://mainnet.infura.io/v3/2849c01a970f4ed082cb57be7f9db8bb'
+    NODE_URL = os.environ.get("NODE_URL_MAIN")
     CHAIN_ID = 1
 else:
-    NODE_URL = 'https://goerli.infura.io/v3/2849c01a970f4ed082cb57be7f9db8bb'
+    NODE_URL = os.environ.get("NODE_URL_TEST")
     CHAIN_ID = 5
 
 w3 = Web3(Web3.HTTPProvider(NODE_URL))
@@ -18,7 +18,7 @@ FROM_ADDRESS_01 = "0xDf21e5742Bd8911B35871A73d1a158674ebc11Ec"
 FROM_ADDRESS_02 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
 private_key_01 = os.environ.get("PRIVATE_KEY_01")
-private_key_02 = os.environ.get("PRIVATE_KEY_01")
+private_key_02 = os.environ.get("PRIVATE_KEY_02")
 
 TO_ADDRESS_NULL = None
 TO_ADDRESS_01 = "0x5F00163E536c2f3626FE8ccFfeb11b64536BB0aF"
