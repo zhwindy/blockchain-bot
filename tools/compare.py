@@ -1,8 +1,15 @@
 # encoding=utf-8
+import os
 import requests
 
-NODE_URL = 'https://mainnet.infura.io/v3/2849c01a970f4ed082cb57be7f9db8bb'
-# NODE_URL = 'https://goerli.infura.io/v3/2849c01a970f4ed082cb57be7f9db8bb'
+ENV = 'main'
+
+if ENV == 'main':
+    NODE_URL = os.environ.get("NODE_URL_MAIN")
+    CHAIN_ID = 1
+else:
+    NODE_URL = os.environ.get("NODE_URL_TEST")
+    CHAIN_ID = 5
 
 
 def get_tx_input_data(txid):
