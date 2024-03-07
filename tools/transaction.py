@@ -46,13 +46,14 @@ def generate_1559_tx(from_address, to_address, value, gas_limit=21000, gas_price
     nonce = get_nonce(from_address)
     data = get_data(text)
     gas_price_amount = 10000000000 if not gas_price else gas_price
+    gas_priority_amount = Web3.toWei(Decimal('1'), 'gwei')
     transaction = {
         "to": check_address(to_address),
         "value": value,
         "nonce": nonce,
         "gas": gas_limit,
         "maxFeePerGas": gas_price_amount,
-        "maxPriorityFeePerGas": 600000000,  # 1Gwei
+        "maxPriorityFeePerGas": gas_priority_amount,
         "chainId": CHAIN_ID,
         "type": tx_type,  # 选填
         "data": data
@@ -70,7 +71,6 @@ def generate_old_tx(from_address, to_address, value, gas_limit=21000, gas_price=
         "nonce": nonce,
         "gas": gas_limit,
         "gasPrice": gas_price_amount,
-        # "chainId": CHAIN_ID,
         "data": data
     }
     return transaction
@@ -78,23 +78,27 @@ def generate_old_tx(from_address, to_address, value, gas_limit=21000, gas_price=
 
 def sign_tx(trancaction, private_key):
     signed_txn = w3.eth.account.sign_transaction(trancaction, private_key)
-    print("signed_raw_tx:", signed_txn.rawTransaction.hex())
+    # print("signed_raw_tx:", signed_txn.rawTransaction.hex())
     print("singed_txid", signed_txn.hash.hex())
     return signed_txn
 
 
 def main():
+    tx_type = 2
     value = Web3.toWei(Decimal('0.0001'), 'ether')
     gas_limit = 21000
-    gas_price = Web3.toWei(Decimal('10'), 'gwei')  # MaxFee=1Gwei
-    tx = generate_1559_tx(FROM_ADDRESS_01, TO_ADDRESS_01, value, gas_limit=gas_limit, gas_price=gas_price)
-    # tx = generate_old_tx(FROM_ADDRESS_02, TO_ADDRESS_04, value, gas_limit=gas_limit, gas_price=gas_price)
-    print(tx)
-    signed_txn = sign_tx(tx, private_key_02)
+    gas_price = Web3.toWei(Decimal('14'), 'gwei')  # MaxFeePrice
+    if tx_type == 2:
+        unsign_tx = generate_1559_tx(FROM_ADDRESS_01, TO_ADDRESS_01, value, gas_limit=gas_limit, gas_price=gas_price)
+    else:
+        unsign_tx = generate_old_tx(FROM_ADDRESS_01, TO_ADDRESS_01, value, gas_limit=gas_limit, gas_price=gas_price)
+    signed_txn = sign_tx(unsign_tx, private_key_01)
     # print("r:", signed_txn.r)
     # print("s:", signed_txn.s)
     w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
 
 if __name__ == "__main__":
+    # address = "0x5F00163E536c2f3626FE8ccFfeb11b64536BB0aF"
+    # print(get_nonce(address))
     main()

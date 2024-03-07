@@ -9,7 +9,7 @@ class Rpc:
     """
     eth rpc方法
     """
-    def __init__(self, api='https://arb1.arbitrum.io/rpc', chainid=42161, proxies=None, timeout=30):
+    def __init__(self, api='https://testnet-rpc.mintchain.io', chainid=1686, proxies=None, timeout=30):
         self.api = api
         self.chainid = chainid
         self.proxies = proxies
@@ -127,25 +127,27 @@ def query(privkey):
     查询数量
     """
     rpc = Rpc()
-    claim_contract = '0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9'
+    claim_contract = '0xB6C8B971650d96BD58c9Ba16DcFe685Bc1472e82'
     account = web3.Account.from_key(privkey)
-    data = '0x84d24226000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+    data = '0x70a082310000000000000000000000003580522c5998fce4ebe9ebd1bfc1338e940c974f'
     to = web3.Web3.toChecksumAddress(claim_contract)
     res = rpc.call(claim_contract, data)
     return res
 
 
-def claim(privkey):
+def mint(privkey):
     """
-    领取
+    mint
     """
     account = web3.Account.from_key(privkey)
     rpc = Rpc()
-    # https://arbiscan.io/address/0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9
-    claim_contract = '0x67a24CE4321aB3aF51c2D0a4801c3E111D88C9d9' # clain合约地址
-    data = '0x4e71d92d'
+    claim_contract = '0xB6C8B971650d96BD58c9Ba16DcFe685Bc1472e82'  # 合约地址
+
+    data = '0x40c10f190000000000000000000000003580522c5998fce4ebe9ebd1bfc1338e940c974f000000000000000000000000000000000000000000000000000000000012d1b5'
     to = web3.Web3.toChecksumAddress(claim_contract)
-    res = rpc.transfer(account, to, 0, gaslimit=20000, data=data)
+
+    res = rpc.transfer_token(account, to, 0, gaslimit=355210, data=data)
+
     return res
 
 
@@ -166,10 +168,8 @@ def transfer(privkey, address):
     """
     转账
     """
+    rpc = Rpc()
     account = web3.Account.from_key(privkey)
-    # api = "http://127.0.0.1:8547"
-    api = "https://open-platform.nodereal.io/a4a9f892480d45e395f93945c4b77c6e/arbitrum-nitro"
-    rpc = Rpc(api=api)
     balance = detect_balance(rpc, account.address)
     if balance:
         res = rpc.transfer(account, address, balance, gaslimit=300000)
@@ -199,24 +199,26 @@ def collection(privkey, address):
     return res
 
 
-def main_transfer(privKey):
+def main_transfer(privkey):
     address = '0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C'
     while True:
         try:
-            transfer(privKey, address)
+            transfer(privkey, address)
         except Exception as e:
             print(e)
             time.sleep(0.1)
             continue
 
 
-def main_transfer_token(privKey):
+def main_transfer_token(privkey):
+    """
+    token转账
+    """
     rpc = Rpc()
     address = '0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C'
 
-    addr_1 = address.lower()[2:].rjust(64,'0')
-    data = '0xa9059cbb' + addr_1 + "0000000000000000000000000000000000000000000000b02ecf74c313880000"
-    account = web3.Account.from_key(privKey)
+    data = '0xa9059cbb' + address.lower()[2:].rjust(64,'0') + "0000000000000000000000000000000000000000000000b02ecf74c313880000"
+    account = web3.Account.from_key(privkey)
 
     token = '0x912ce59144191c1204e64559fe8253a0e49e6548' # arb 代币合约
     to = web3.Web3.toChecksumAddress(token)
@@ -231,15 +233,14 @@ def main_transfer_token(privKey):
 
 
 if __name__ == '__main__':
-    pk = '' # 你的私钥
+    pk = '7b29d81ee1d1fa5bdedd9d50977b453d7949ec9e9a1b21dc56ccad768d106146' # 私钥
     # 查询
     # print(query(pk))
-    # 领取
-    # res = claim(pk)
-    # print(res)
+    # Mint
+    print(mint(pk))
     # 归集
     # address = ''
     # res = collection(pk, address)
     # transfer(pk, address)
     # main_transfer()
-    main_transfer_token()
+    # main_transfer_token()
