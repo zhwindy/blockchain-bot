@@ -119,20 +119,18 @@ class Rpc:
             tx.update(**kw)
         print(tx)
         signed = account.signTransaction(tx)
-        print("txid:", signed.hash.hex())
         return self.send_raw_transaction(signed.rawTransaction.hex())
 
 
 def query(privkey, contract):
     """
-    查询数量
+    balanceOf
     """
     rpc = Rpc()
     account = web3.Account.from_key(privkey)
-    print(account.address)
-    data = '0x70a082310000000000000000000000003580522c5998fce4ebe9ebd1bfc1338e940c974f'
+    call_data = '0x70a08231' + '000000000000000000000000' + account.address[2:]
     to = web3.Web3.toChecksumAddress(contract)
-    res = rpc.call(contract, data)
+    res = rpc.call(contract, call_data)
     return res
 
 
@@ -143,10 +141,11 @@ def mint(privkey, contract):
     account = web3.Account.from_key(privkey)
     rpc = Rpc()
 
-    data = '0x40c10f190000000000000000000000003580522c5998fce4ebe9ebd1bfc1338e940c974f000000000000000000000000000000000000000000000000000000000012d1b5'
+    amount = hex(web3.Web3.toWei(1000*10**8, 'ether'))[2:]
+    data = '0x40c10f19' + '000000000000000000000000' + account.address[2:] + amount.rjust(64, '0')
     to = web3.Web3.toChecksumAddress(contract)
 
-    res = rpc.transfer_token(account, to, 0, gaslimit=355210, data=data)
+    res = rpc.transfer_token(account, to, 0, gaslimit=99999, data=data)
 
     return res
 
@@ -177,28 +176,6 @@ def transfer(privkey, address):
     return True
 
 
-def collection(privkey, address):
-    # 归集
-    # https://arbiscan.io/token/0x912ce59144191c1204e64559fe8253a0e49e6548#balances
-    rpc = Rpc()
-    account = web3.Account.from_key(privkey)
-    token = '0x912ce59144191c1204e64559fe8253a0e49e6548' # arb 代币地址
-
-    # 1.查询地址余额
-    call_data = '0x70a08231' + '000000000000000000000000' + account.address[2:]
-    # call_data = "0x70a08231000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"
-    res = rpc.call(token, call_data)
-    value = res['result']
-
-    # 2.转账
-    addr_1 = address.lower()[2:].rjust(64,'0')
-    unit_2 = value[2:].rjust(64,'0')
-    data = '0xa9059cbb' + addr_1 + unit_2
-    to = web3.Web3.toChecksumAddress(token)
-    res = rpc.transfer(account, to, 0, gaslimit=455210, data=data)
-    return res
-
-
 def main_transfer(privkey):
     address = '0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C'
     while True:
@@ -210,35 +187,27 @@ def main_transfer(privkey):
             continue
 
 
-def main_transfer_token(privkey):
+def main_transfer_token(privkey, token_contract, to_address):
     """
     token转账
     """
     rpc = Rpc()
-    address = '0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C'
-
-    data = '0xa9059cbb' + address.lower()[2:].rjust(64,'0') + "0000000000000000000000000000000000000000000000b02ecf74c313880000"
     account = web3.Account.from_key(privkey)
 
-    token = '0x912ce59144191c1204e64559fe8253a0e49e6548' # arb 代币合约
-    to = web3.Web3.toChecksumAddress(token)
-    while True:
-        try:
-            res = rpc.transfer_token(account, to, 0, gaslimit=355210, data=data)
-            print(res)
-        except Exception as e:
-            print(e)
-            time.sleep(0.1)
-            continue
+    amount = hex(web3.Web3.toWei(10000, 'ether'))[2:]
+    data = '0xa9059cbb' + '000000000000000000000000' + to_address.lower()[2:] + amount.rjust(64, '0')
+
+    to = web3.Web3.toChecksumAddress(token_contract)
+    try:
+        res = rpc.transfer_token(account, to, 0, gaslimit=99999, data=data)
+        print(res)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
-    claim_contract = '0xB6C8B971650d96BD58c9Ba16DcFe685Bc1472e82'
-    private = os.environ.get("PRIVATE_KEY_01")
-    print(private)
-    print(query(private, claim_contract))
-    # print(mint(private, claim_contract))
-    # address = ''
-    # transfer(pk, address)
-    # main_transfer()
-    # main_transfer_token()
+    token_contract = '0x4ae6D009f463A8c80F382eAE7c1E880B077179d8'
+    privateKey = os.environ.get("PRIVATE_KEY_01")
+    # print(query(privateKey, token_contract))
+    # print(mint(privateKey, token_contract))
+    main_transfer_token(privateKey, token_contract, '0x2E8Eb30a716e5fE15C74233E039bfb1106e81D12')
