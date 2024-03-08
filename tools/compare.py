@@ -55,9 +55,7 @@ def compare(txid, address):
 
 
 if __name__ == '__main__':
-    # txid = "0xa8cb9dfdcb3d2074ae6b492e23f280f01a69a639afa5331f90cadaa2313faa48"
-    # address = "0x80313d5db1da630b952bd4af81d6585c4c3f984d"
-    txid = "0x1c2d63247c36a617775c435a917770dfe62379064deaa1ab7f85e651a92f578e"
-    address = "0xed5af388653567af2f388e6224dc7c4b3241c544"
+    txid = "0xa8cb9dfdcb3d2074ae6b492e23f280f01a69a639afa5331f90cadaa2313faa48"
+    address = "0x80313d5db1da630b952bd4af81d6585c4c3f984d"
     # get_tx_input_data(txid)
     compare(txid, address)

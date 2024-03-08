@@ -49,7 +49,7 @@ def calc_tx_hash():
     }
     # 不适用type=2的交易
     tx = {
-        "to": HexBytes("0x7fa31d53aaa649bbf08ba2fea0ae5b6b71cd2ccd"),
+        "to": HexBytes("0xba9193fe0768008d1928a23a31f1ddb0b1d2ec53"),
         "nonce": 879,
         "value": 123456,
         "gas": 21000,

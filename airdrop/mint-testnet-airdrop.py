@@ -145,7 +145,7 @@ def mint(privkey, contract):
     data = '0x40c10f19' + '000000000000000000000000' + account.address[2:] + amount.rjust(64, '0')
     to = web3.Web3.toChecksumAddress(contract)
 
-    res = rpc.transfer_token(account, to, 0, gaslimit=99999, data=data)
+    res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
 
     return res
 
@@ -199,7 +199,7 @@ def main_transfer_token(privkey, token_contract, to_address):
 
     to = web3.Web3.toChecksumAddress(token_contract)
     try:
-        res = rpc.transfer_token(account, to, 0, gaslimit=99999, data=data)
+        res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
         print(res)
     except Exception as e:
         print(e)
@@ -210,4 +210,4 @@ if __name__ == '__main__':
     privateKey = os.environ.get("PRIVATE_KEY_01")
     # print(query(privateKey, token_contract))
     # print(mint(privateKey, token_contract))
-    main_transfer_token(privateKey, token_contract, '0x2E8Eb30a716e5fE15C74233E039bfb1106e81D12')
+    main_transfer_token(privateKey, token_contract, '0x4768B5168a8F2BfDD76dE03fAA834839Ccf75d9f')
