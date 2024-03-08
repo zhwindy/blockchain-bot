@@ -1,4 +1,5 @@
 #encoding=utf-8
+import os
 import time
 import web3
 import requests
@@ -122,29 +123,28 @@ class Rpc:
         return self.send_raw_transaction(signed.rawTransaction.hex())
 
 
-def query(privkey):
+def query(privkey, contract):
     """
     查询数量
     """
     rpc = Rpc()
-    claim_contract = '0xB6C8B971650d96BD58c9Ba16DcFe685Bc1472e82'
     account = web3.Account.from_key(privkey)
+    print(account.address)
     data = '0x70a082310000000000000000000000003580522c5998fce4ebe9ebd1bfc1338e940c974f'
-    to = web3.Web3.toChecksumAddress(claim_contract)
-    res = rpc.call(claim_contract, data)
+    to = web3.Web3.toChecksumAddress(contract)
+    res = rpc.call(contract, data)
     return res
 
 
-def mint(privkey):
+def mint(privkey, contract):
     """
     mint
     """
     account = web3.Account.from_key(privkey)
     rpc = Rpc()
-    claim_contract = '0xB6C8B971650d96BD58c9Ba16DcFe685Bc1472e82'  # 合约地址
 
     data = '0x40c10f190000000000000000000000003580522c5998fce4ebe9ebd1bfc1338e940c974f000000000000000000000000000000000000000000000000000000000012d1b5'
-    to = web3.Web3.toChecksumAddress(claim_contract)
+    to = web3.Web3.toChecksumAddress(contract)
 
     res = rpc.transfer_token(account, to, 0, gaslimit=355210, data=data)
 
@@ -233,14 +233,12 @@ def main_transfer_token(privkey):
 
 
 if __name__ == '__main__':
-    pk = '' # 私钥
-    # 查询
-    # print(query(pk))
-    # Mint
-    print(mint(pk))
-    # 归集
+    claim_contract = '0xB6C8B971650d96BD58c9Ba16DcFe685Bc1472e82'
+    private = os.environ.get("PRIVATE_KEY_01")
+    print(private)
+    print(query(private, claim_contract))
+    # print(mint(private, claim_contract))
     # address = ''
-    # res = collection(pk, address)
     # transfer(pk, address)
     # main_transfer()
     # main_transfer_token()
