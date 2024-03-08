@@ -233,7 +233,7 @@ def main_transfer_token(privkey):
 
 
 if __name__ == '__main__':
-    pk = '7b29d81ee1d1fa5bdedd9d50977b453d7949ec9e9a1b21dc56ccad768d106146' # 私钥
+    pk = '' # 私钥
     # 查询
     # print(query(pk))
     # Mint
