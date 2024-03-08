@@ -73,8 +73,8 @@ class Rpc:
     def transfer(self, account, to, amount, gaslimit, **kw):
         amount = int(amount, 16) if isinstance(amount, str) else int(amount)
         gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
-        gas_price = web3.Web3.toWei(Decimal('0.1'), 'gwei')
-        max_gas_price = web3.Web3.toWei(Decimal('0.1'), 'gwei')
+        gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
+        max_gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
         transfer_amount = amount - (gaslimit * gas_price)
         if transfer_amount < 0:
             print(100*">", "余额不足")
@@ -94,15 +94,15 @@ class Rpc:
         if kw:
             tx.update(**kw)
         print(tx)
-        signed = account.signTransaction(tx)
+        signed = account.sign_transaction(tx)
         print("txid:", signed.hash.hex())
         return self.send_raw_transaction(signed.rawTransaction.hex())
     
     def transfer_token(self, account, to, amount, gaslimit, **kw):
         amount = int(amount, 16) if isinstance(amount, str) else int(amount)
         gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
-        gas_price = web3.Web3.toWei(Decimal('0.1'), 'gwei')
-        max_gas_price = web3.Web3.toWei(Decimal('0.1'), 'gwei')
+        gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
+        max_gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
         nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
         tx = {
             'from': account.address,
@@ -118,7 +118,7 @@ class Rpc:
         if kw:
             tx.update(**kw)
         print(tx)
-        signed = account.signTransaction(tx)
+        signed = account.sign_transaction(tx)
         return self.send_raw_transaction(signed.rawTransaction.hex())
 
 
@@ -129,7 +129,7 @@ def query(privkey, contract):
     rpc = Rpc()
     account = web3.Account.from_key(privkey)
     call_data = '0x70a08231' + '000000000000000000000000' + account.address[2:]
-    to = web3.Web3.toChecksumAddress(contract)
+    to = web3.Web3.to_checksum_address(contract)
     res = rpc.call(contract, call_data)
     return res
 
@@ -141,9 +141,9 @@ def mint(privkey, contract):
     account = web3.Account.from_key(privkey)
     rpc = Rpc()
 
-    amount = hex(web3.Web3.toWei(1000*10**8, 'ether'))[2:]
+    amount = hex(web3.Web3.to_wei(1000*10**8, 'ether'))[2:]
     data = '0x40c10f19' + '000000000000000000000000' + account.address[2:] + amount.rjust(64, '0')
-    to = web3.Web3.toChecksumAddress(contract)
+    to = web3.Web3.to_checksum_address(contract)
 
     res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
 
@@ -194,10 +194,10 @@ def main_transfer_token(privkey, token_contract, to_address):
     rpc = Rpc()
     account = web3.Account.from_key(privkey)
 
-    amount = hex(web3.Web3.toWei(10000, 'ether'))[2:]
+    amount = hex(web3.Web3.to_wei(600, 'ether'))[2:]
     data = '0xa9059cbb' + '000000000000000000000000' + to_address.lower()[2:] + amount.rjust(64, '0')
 
-    to = web3.Web3.toChecksumAddress(token_contract)
+    to = web3.Web3.to_checksum_address(token_contract)
     try:
         res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
         print(res)
@@ -210,4 +210,4 @@ if __name__ == '__main__':
     privateKey = os.environ.get("PRIVATE_KEY_01")
     # print(query(privateKey, token_contract))
     # print(mint(privateKey, token_contract))
-    main_transfer_token(privateKey, token_contract, '0x4768B5168a8F2BfDD76dE03fAA834839Ccf75d9f')
+    main_transfer_token(privateKey, token_contract, '0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97')
