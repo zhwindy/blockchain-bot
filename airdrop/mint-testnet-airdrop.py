@@ -3,7 +3,9 @@ import os
 import time
 import web3
 import requests
+import random
 from decimal import Decimal
+from db_mysql import get_conn
 
 
 class Rpc:
@@ -77,7 +79,6 @@ class Rpc:
         max_gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
         transfer_amount = amount - (gaslimit * gas_price)
         if transfer_amount < 0:
-            print(100*">", "余额不足")
             return False
         nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
         tx = {
@@ -187,27 +188,76 @@ def main_transfer(privkey):
             continue
 
 
-def main_transfer_token(privkey, token_contract, to_address):
+def main_transfer_token(privkey, token_contract, to_address, amount=1):
     """
     token转账
     """
     rpc = Rpc()
     account = web3.Account.from_key(privkey)
 
-    amount = hex(web3.Web3.to_wei(600, 'ether'))[2:]
-    data = '0xa9059cbb' + '000000000000000000000000' + to_address.lower()[2:] + amount.rjust(64, '0')
+    hex_amount = hex(web3.Web3.to_wei(amount, 'ether'))[2:]
+    data = '0xa9059cbb' + '000000000000000000000000' + to_address.lower()[2:] + hex_amount.rjust(64, '0')
 
     to = web3.Web3.to_checksum_address(token_contract)
     try:
         res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
         print(res)
+        return True
     except Exception as e:
         print(e)
+        return False
+
+
+def get_data():
+    conn = get_conn(database='mint')
+    cursor = conn.cursor()
+    sql = "SELECT id, address FROM testnet_airdrop_whitelist where airdrop=0"
+    records = []
+    try:
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        for r in result:
+            info = {"record_id": 0, "address": ''}
+            info['record_id'] = r[0]
+            info['address'] = r[1]
+            records.append(info)
+    except Exception as e:
+        print(e)
+    conn.close()
+    return records
+
+
+def airdrop_token(privKey, token_contract):
+    """
+    token airdrop
+    """
+    conn = get_conn(database='mint')
+    cursor = conn.cursor()
+
+    airdrop_address = get_data()
+    for i in airdrop_address:
+        recrod_id = i.get("record_id")
+        address = str(i.get("address", ""))
+        if not address or not recrod_id:
+            continue
+        if len(address) != 42:
+            continue
+        amount = random.randint(10000,100000)
+        rt = main_transfer_token(privKey, token_contract, address, amount=amount)
+        if not rt:
+            time.sleep(0.5)
+            continue
+        sql = f"update testnet_airdrop_whitelist set airdrop=1, amount={amount} where id={recrod_id}"
+        print(sql)
+        cursor.execute(sql)
+        conn.commit()
+        time.sleep(0.8)
+    conn.close()
 
 
 if __name__ == '__main__':
     token_contract = '0x4ae6D009f463A8c80F382eAE7c1E880B077179d8'
-    privateKey = os.environ.get("PRIVATE_KEY_01")
-    # print(query(privateKey, token_contract))
-    # print(mint(privateKey, token_contract))
-    main_transfer_token(privateKey, token_contract, '0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97')
+    privKey = os.environ.get("PRIVATE_KEY_01")
+    # print(query(privKey, token_contract))
+    # print(mint(privKey, token_contract))
+    airdrop_token(privKey, token_contract)
