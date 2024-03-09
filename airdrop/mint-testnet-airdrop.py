@@ -237,7 +237,7 @@ def airdrop_token(privKey, token_contract):
     cursor = conn.cursor()
 
     airdrop_address = get_data()
-    nonce = 15
+    nonce = 16806
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -248,7 +248,7 @@ def airdrop_token(privKey, token_contract):
         amount = random.randint(10000,100000)
         rt = main_transfer_token(privKey, token_contract, address, nonce=nonce, amount=amount)
         if not rt:
-            time.sleep(0.5)
+            time.sleep(2)
             continue
         else:
             if rt.get("result"):
@@ -265,7 +265,7 @@ def airdrop_token(privKey, token_contract):
                 msg = error.get("message")
                 if msg.find('replacement transaction underpriced') != -1:
                     continue
-        time.sleep(0.8)
+        time.sleep(3)
     conn.close()
 
 
