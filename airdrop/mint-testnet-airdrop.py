@@ -99,12 +99,14 @@ class Rpc:
         print("txid:", signed.hash.hex())
         return self.send_raw_transaction(signed.rawTransaction.hex())
     
-    def transfer_token(self, account, to, amount, gaslimit, **kw):
+    def transfer_token(self, account, to, amount, gaslimit, nonce=None, **kw):
         amount = int(amount, 16) if isinstance(amount, str) else int(amount)
         gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
         gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
         max_gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
-        nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
+        # 若没有自定义nonce则使用系统默认值
+        if not nonce:
+            nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
         tx = {
             'from': account.address,
             'to': to,
@@ -188,7 +190,7 @@ def main_transfer(privkey):
             continue
 
 
-def main_transfer_token(privkey, token_contract, to_address, amount=1):
+def main_transfer_token(privkey, token_contract, to_address, nonce=None, amount=1):
     """
     token转账
     """
@@ -200,9 +202,9 @@ def main_transfer_token(privkey, token_contract, to_address, amount=1):
 
     to = web3.Web3.to_checksum_address(token_contract)
     try:
-        res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
+        res = rpc.transfer_token(account, to, 0, gaslimit=85000, nonce=nonce, data=data)
         print(res)
-        return True
+        return res
     except Exception as e:
         print(e)
         return False
@@ -235,6 +237,7 @@ def airdrop_token(privKey, token_contract):
     cursor = conn.cursor()
 
     airdrop_address = get_data()
+    nonce = 15
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -243,14 +246,25 @@ def airdrop_token(privKey, token_contract):
         if len(address) != 42:
             continue
         amount = random.randint(10000,100000)
-        rt = main_transfer_token(privKey, token_contract, address, amount=amount)
+        rt = main_transfer_token(privKey, token_contract, address, nonce=nonce, amount=amount)
         if not rt:
             time.sleep(0.5)
             continue
-        sql = f"update testnet_airdrop_whitelist set airdrop=1, amount={amount} where id={recrod_id}"
-        print(sql)
-        cursor.execute(sql)
-        conn.commit()
+        else:
+            if rt.get("result"):
+                sql = f"update testnet_airdrop_whitelist set airdrop=1, amount={amount} where id={recrod_id}"
+                print(sql)
+                cursor.execute(sql)
+                conn.commit()
+                nonce += 1
+            else:
+                continue
+                error =  rt.get("error")
+                if not error:
+                    break
+                msg = error.get("message")
+                if msg.find('replacement transaction underpriced') != -1:
+                    continue
         time.sleep(0.8)
     conn.close()
 
