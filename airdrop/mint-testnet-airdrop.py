@@ -237,7 +237,7 @@ def airdrop_token(privKey, token_contract):
     cursor = conn.cursor()
 
     airdrop_address = get_data()
-    nonce = 16806
+    nonce = 89397
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -245,7 +245,7 @@ def airdrop_token(privKey, token_contract):
             continue
         if len(address) != 42:
             continue
-        amount = random.randint(10000,100000)
+        amount = random.randint(1000,100000)
         rt = main_transfer_token(privKey, token_contract, address, nonce=nonce, amount=amount)
         if not rt:
             time.sleep(2)
