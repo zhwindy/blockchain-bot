@@ -257,7 +257,7 @@ def airdrop_token(privKey, token_contract):
     cursor = conn.cursor()
 
     airdrop_address = get_airdrop_address()
-    nonce = 89397
+    nonce = 209400
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -333,5 +333,5 @@ if __name__ == '__main__':
     # airdrop_token(token_privKey, token_contract)
     # to_address = "0xCa261418513ea74Ef1416D5BBb1EDBe3d24dcB57"
     # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
-    # airdrop_token(token_privKey, token_contract)
-    airdrop_nft(nft_privKey, nft_contract)
+    airdrop_token(token_privKey, token_contract)
+    # airdrop_nft(nft_privKey, nft_contract)
