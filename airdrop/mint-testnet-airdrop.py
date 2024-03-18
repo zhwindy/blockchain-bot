@@ -137,7 +137,7 @@ def query(privkey, contract):
     return res
 
 
-def mint(privkey, contract):
+def mint_token(privkey, token_contract):
     """
     mint
     """
@@ -146,9 +146,26 @@ def mint(privkey, contract):
 
     amount = hex(web3.Web3.to_wei(1000*10**8, 'ether'))[2:]
     data = '0x40c10f19' + '000000000000000000000000' + account.address[2:] + amount.rjust(64, '0')
-    to = web3.Web3.to_checksum_address(contract)
+    to = web3.Web3.to_checksum_address(token_contract)
 
     res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
+
+    return res
+
+
+def mint_nft(privkey, token_contract, to_address=None, nonce=None):
+    """
+    mint
+    """
+    account = web3.Account.from_key(privkey)
+    rpc = Rpc()
+
+    nft_to_address = str(to_address)[2:] if to_address else account.address[2:]
+
+    data = '0x40d097c3' + '000000000000000000000000' + str(nft_to_address)
+    to = web3.Web3.to_checksum_address(token_contract)
+
+    res = rpc.transfer_token(account, to, 0, gaslimit=92000, nonce=nonce, data=data)
 
     return res
 
@@ -210,10 +227,13 @@ def main_transfer_token(privkey, token_contract, to_address, nonce=None, amount=
         return False
 
 
-def get_data():
+def get_airdrop_address(airdrop_type=None):
     conn = get_conn(database='mint')
     cursor = conn.cursor()
-    sql = "SELECT id, address FROM testnet_airdrop_whitelist where airdrop=0"
+    if airdrop_type in ['nft']:
+        sql = "SELECT id, address FROM testnet_airdrop_whitelist where nft_drop=0"
+    else:
+        sql = "SELECT id, address FROM testnet_airdrop_whitelist where airdrop=0"
     records = []
     try:
         cursor.execute(sql)
@@ -236,7 +256,7 @@ def airdrop_token(privKey, token_contract):
     conn = get_conn(database='mint')
     cursor = conn.cursor()
 
-    airdrop_address = get_data()
+    airdrop_address = get_airdrop_address()
     nonce = 89397
     for i in airdrop_address:
         recrod_id = i.get("record_id")
@@ -269,9 +289,49 @@ def airdrop_token(privKey, token_contract):
     conn.close()
 
 
+def airdrop_nft(privKey, token_contract):
+    """
+    nft airdrop
+    """
+    conn = get_conn(database='mint')
+    cursor = conn.cursor()
+
+    airdrop_address = get_airdrop_address(airdrop_type='nft')
+    nonce = 4
+    for i in airdrop_address:
+        recrod_id = i.get("record_id")
+        address = str(i.get("address", ""))
+        if not address or not recrod_id:
+            continue
+        if len(address) != 42:
+            continue
+        rt = mint_nft(privKey, token_contract, address, nonce=nonce)
+        if not rt:
+            time.sleep(2)
+            continue
+        else:
+            if rt.get("result"):
+                sql = f"update testnet_airdrop_whitelist set nft_drop=1 where id={recrod_id}"
+                print(sql)
+                cursor.execute(sql)
+                conn.commit()
+                nonce += 1
+            else:
+                continue
+        time.sleep(5)
+    conn.close()
+
+
+
 if __name__ == '__main__':
     token_contract = '0x4ae6D009f463A8c80F382eAE7c1E880B077179d8'
-    privKey = os.environ.get("PRIVATE_KEY_01")
-    # print(query(privKey, token_contract))
-    # print(mint(privKey, token_contract))
-    airdrop_token(privKey, token_contract)
+    nft_contract = '0x6C57C2432083fb84E935dB9076c973A2Dea0727A'
+    token_privKey = os.environ.get("PRIVATE_KEY_01")
+    nft_privKey = os.environ.get("PRIVATE_KEY_SAM")
+    # print(query(token_privKey, token_contract))
+    # print(mint_token(token_privKey, token_contract))
+    # airdrop_token(token_privKey, token_contract)
+    # to_address = "0xCa261418513ea74Ef1416D5BBb1EDBe3d24dcB57"
+    # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
+    # airdrop_token(token_privKey, token_contract)
+    airdrop_nft(nft_privKey, nft_contract)
