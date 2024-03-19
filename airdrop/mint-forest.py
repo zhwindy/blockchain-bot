@@ -1,9 +1,8 @@
 #encoding=utf-8
-import os
 import time
 import web3
+import math
 import requests
-import random
 from decimal import Decimal
 from db_mysql import get_conn
 
@@ -173,7 +172,7 @@ def check_address(address):
         ck_balance = detect_balance(v, address)
         if ck_balance > 0:
             flag = k
-            balance = ck_balance
+            balance = ck_balance / math.pow(10,18)
             break
         else:
             continue
