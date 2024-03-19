@@ -201,7 +201,7 @@ def check_status():
         if not flag:
             sql = f"update mint_forest set status=2 where id={recrod_id}"
         else:
-            sql = f"update mint_forest set status=1 {flag}={balance}, where id={recrod_id}"
+            sql = f"update mint_forest set status=1 {flag}={balance} where id={recrod_id}"
         cursor.execute(sql)
         conn.commit()
     conn.close()
