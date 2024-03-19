@@ -199,9 +199,9 @@ def check_status():
         flag, balance = check_address(address)
         print(recrod_id, address, flag, balance)
         if not flag:
-            sql = f"update mint_forest set status=2, where id={recrod_id}"
+            sql = f"update mint_forest set status=2 where id={recrod_id}"
         else:
-            sql = f"update mint_forest set status=1, {flag}={balance}, where id={recrod_id}"
+            sql = f"update mint_forest set status=1 {flag}={balance}, where id={recrod_id}"
         cursor.execute(sql)
         conn.commit()
     conn.close()
