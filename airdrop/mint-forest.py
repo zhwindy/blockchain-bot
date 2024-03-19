@@ -125,115 +125,23 @@ class Rpc:
         return self.send_raw_transaction(signed.rawTransaction.hex())
 
 
-def query(privkey, contract):
-    """
-    balanceOf
-    """
-    rpc = Rpc()
-    account = web3.Account.from_key(privkey)
-    call_data = '0x70a08231' + '000000000000000000000000' + account.address[2:]
-    to = web3.Web3.to_checksum_address(contract)
-    res = rpc.call(contract, call_data)
-    return res
-
-
-def mint_token(privkey, token_contract):
-    """
-    mint
-    """
-    account = web3.Account.from_key(privkey)
-    rpc = Rpc()
-
-    amount = hex(web3.Web3.to_wei(1000*10**8, 'ether'))[2:]
-    data = '0x40c10f19' + '000000000000000000000000' + account.address[2:] + amount.rjust(64, '0')
-    to = web3.Web3.to_checksum_address(token_contract)
-
-    res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
-
-    return res
-
-
-def mint_nft(privkey, token_contract, to_address=None, nonce=None):
-    """
-    mint
-    """
-    account = web3.Account.from_key(privkey)
-    rpc = Rpc()
-
-    nft_to_address = str(to_address)[2:] if to_address else account.address[2:]
-
-    data = '0x40d097c3' + '000000000000000000000000' + str(nft_to_address)
-    to = web3.Web3.to_checksum_address(token_contract)
-
-    res = rpc.transfer_token(account, to, 0, gaslimit=92000, nonce=nonce, data=data)
-
-    return res
-
-
 def detect_balance(rpc, address):
     """
     检测余额
     """
-    rt = rpc.get_balance(address)
-    res = rt['result']
-    balance = int(res, base=16)
-    print(100*"=", balance)
-    if balance > 8000000000000:
-        return balance
-    return False
-
-
-def transfer(privkey, address):
-    """
-    转账
-    """
-    rpc = Rpc()
-    account = web3.Account.from_key(privkey)
-    balance = detect_balance(rpc, account.address)
-    if balance:
-        res = rpc.transfer(account, address, balance, gaslimit=300000)
-        print(res)
-    return True
-
-
-def main_transfer(privkey):
-    address = '0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C'
-    while True:
-        try:
-            transfer(privkey, address)
-        except Exception as e:
-            print(e)
-            time.sleep(0.1)
-            continue
-
-
-def main_transfer_token(privkey, token_contract, to_address, nonce=None, amount=1):
-    """
-    token转账
-    """
-    rpc = Rpc()
-    account = web3.Account.from_key(privkey)
-
-    hex_amount = hex(web3.Web3.to_wei(amount, 'ether'))[2:]
-    data = '0xa9059cbb' + '000000000000000000000000' + to_address.lower()[2:] + hex_amount.rjust(64, '0')
-
-    to = web3.Web3.to_checksum_address(token_contract)
     try:
-        res = rpc.transfer_token(account, to, 0, gaslimit=85000, nonce=nonce, data=data)
-        print(res)
-        return res
+        rt = rpc.get_balance(address)
+        res = rt.get('result', '0x0')
+        balance = int(res, base=16)
     except Exception as e:
-        print(e)
-        return False
+        balance = 0
+    return balance
 
 
-def get_airdrop_address(airdrop_type=None):
+def get_check_address():
     conn = get_conn(database='mint')
     cursor = conn.cursor()
-    if airdrop_type in ['nft']:
-        sql = "SELECT id, address FROM testnet_airdrop_whitelist where nft_drop=0"
-    else:
-        sql = "SELECT id, address FROM testnet_airdrop_whitelist where airdrop=0"
+    sql = "SELECT id, address FROM mint_forest where status=0"
     records = []
     try:
         cursor.execute(sql)
@@ -249,88 +157,55 @@ def get_airdrop_address(airdrop_type=None):
     return records
 
 
-def airdrop_token(privKey, token_contract):
+def check_address(address):
+    flag = None
+    balance = 0
+    rpc_dict = {
+        "eth": Rpc(api="https://eth-mainnet.nodereal.io/v1/f6ff79c79bb84d7aa02dba4902d89a26"),
+        "bsc": Rpc(api="https://bsc-mainnet.nodereal.io/v1/f6ff79c79bb84d7aa02dba4902d89a26"),
+        "polygon": Rpc(api="https://polygon-mainnet.nodereal.io/v1/f6ff79c79bb84d7aa02dba4902d89a26"),
+        "op": Rpc(api="https://opt-mainnet.nodereal.io/v1/f6ff79c79bb84d7aa02dba4902d89a26"),
+        "arb": Rpc(api="https://open-platform.nodereal.io/f6ff79c79bb84d7aa02dba4902d89a26/arbitrum-nitro/"),
+        "base": Rpc(api="https://open-platform.nodereal.io/f6ff79c79bb84d7aa02dba4902d89a26/base"),
+        "zksync": Rpc(api="https://open-platform.nodereal.io/f6ff79c79bb84d7aa02dba4902d89a26/zksync"),
+    }
+    for k, v in rpc_dict.items():
+        ck_balance = detect_balance(v, address)
+        if ck_balance > 0:
+            flag = k
+            balance = ck_balance
+            break
+        else:
+            continue
+    
+    return flag, balance
+
+
+def check_status():
     """
-    token airdrop
+    check process
     """
     conn = get_conn(database='mint')
     cursor = conn.cursor()
 
-    airdrop_address = get_airdrop_address()
-    nonce = 209400
-    for i in airdrop_address:
+    all_address = get_check_address()
+    for i in all_address:
         recrod_id = i.get("record_id")
-        address = str(i.get("address", ""))
+        address = str(i.get("address", "")).strip()
         if not address or not recrod_id:
             continue
         if len(address) != 42:
             continue
-        amount = random.randint(1000,100000)
-        rt = main_transfer_token(privKey, token_contract, address, nonce=nonce, amount=amount)
-        if not rt:
-            time.sleep(2)
-            continue
+        flag, balance = check_address(address)
+        print(recrod_id, address, flag, balance)
+        if not flag:
+            sql = f"update mint_forest set status=2, where id={recrod_id}"
         else:
-            if rt.get("result"):
-                sql = f"update testnet_airdrop_whitelist set airdrop=1, amount={amount} where id={recrod_id}"
-                print(sql)
-                cursor.execute(sql)
-                conn.commit()
-                nonce += 1
-            else:
-                continue
-                error =  rt.get("error")
-                if not error:
-                    break
-                msg = error.get("message")
-                if msg.find('replacement transaction underpriced') != -1:
-                    continue
-        time.sleep(3)
-    conn.close()
-
-
-def airdrop_nft(privKey, token_contract):
-    """
-    nft airdrop
-    """
-    conn = get_conn(database='mint')
-    cursor = conn.cursor()
-
-    airdrop_address = get_airdrop_address(airdrop_type='nft')
-    nonce = 4
-    for i in airdrop_address:
-        recrod_id = i.get("record_id")
-        address = str(i.get("address", ""))
-        if not address or not recrod_id:
-            continue
-        if len(address) != 42:
-            continue
-        rt = mint_nft(privKey, token_contract, address, nonce=nonce)
-        if not rt:
-            time.sleep(2)
-            continue
-        else:
-            if rt.get("result"):
-                sql = f"update testnet_airdrop_whitelist set nft_drop=1 where id={recrod_id}"
-                print(sql)
-                cursor.execute(sql)
-                conn.commit()
-                nonce += 1
-            else:
-                continue
-        time.sleep(5)
+            sql = f"update mint_forest set status=1, {flag}={balance}, where id={recrod_id}"
+        cursor.execute(sql)
+        conn.commit()
     conn.close()
 
 
 if __name__ == '__main__':
-    token_contract = '0x4ae6D009f463A8c80F382eAE7c1E880B077179d8'
-    nft_contract = '0x6C57C2432083fb84E935dB9076c973A2Dea0727A'
-    token_privKey = os.environ.get("PRIVATE_KEY_01")
-    nft_privKey = os.environ.get("PRIVATE_KEY_SAM")
-    # print(query(token_privKey, token_contract))
-    # print(mint_token(token_privKey, token_contract))
-    # airdrop_token(token_privKey, token_contract)
-    # to_address = "0xCa261418513ea74Ef1416D5BBb1EDBe3d24dcB57"
-    # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
-    airdrop_token(token_privKey, token_contract)
-    # airdrop_nft(nft_privKey, nft_contract)
+    check_status()
