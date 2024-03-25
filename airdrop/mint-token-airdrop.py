@@ -253,15 +253,15 @@ def airdrop_token(privKey, token_contract):
         if not rt:
             time.sleep(2)
             continue
-        # else:
-        #     if rt.get("result"):
+        else:
+            if rt.get("result"):
         #         sql = f"update testnet_airdrop_whitelist set airdrop=1, amount={amount} where id={recrod_id}"
         #         print(sql)
         #         cursor.execute(sql)
         #         conn.commit()
-        #         nonce += 1
-        else:
-            continue
+                nonce += 1
+            else:
+                continue
         time.sleep(0.5)
     # conn.close()
 
