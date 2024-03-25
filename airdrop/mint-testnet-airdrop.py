@@ -297,7 +297,7 @@ def airdrop_nft(privKey, token_contract):
     cursor = conn.cursor()
 
     airdrop_address = get_airdrop_address(airdrop_type='nft')
-    nonce = 13455
+    nonce = 44242
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -318,7 +318,7 @@ def airdrop_nft(privKey, token_contract):
                 nonce += 1
             else:
                 continue
-        time.sleep(5)
+        time.sleep(2)
     conn.close()
 
 
