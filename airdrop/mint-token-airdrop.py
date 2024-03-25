@@ -240,7 +240,7 @@ def airdrop_token(privKey, token_contract):
     # cursor = conn.cursor()
 
     airdrop_address = get_airdrop_address()
-    nonce = 4
+    nonce = 5
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
