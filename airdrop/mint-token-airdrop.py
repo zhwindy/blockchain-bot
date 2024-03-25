@@ -216,7 +216,7 @@ def get_airdrop_address(airdrop_type=None):
     if airdrop_type in ['nft']:
         sql = "SELECT id, address FROM testnet_airdrop_whitelist where nft_drop=0"
     else:
-        sql = "SELECT id, address FROM testnet_airdrop_whitelist where airdrop=0"
+        sql = "SELECT id, address FROM testnet_airdrop_whitelist"
     records = []
     try:
         cursor.execute(sql)
@@ -236,11 +236,11 @@ def airdrop_token(privKey, token_contract):
     """
     token airdrop
     """
-    conn = get_conn(database='mint')
-    cursor = conn.cursor()
+    # conn = get_conn(database='mint')
+    # cursor = conn.cursor()
 
     airdrop_address = get_airdrop_address()
-    nonce = 1
+    nonce = 4
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -253,17 +253,17 @@ def airdrop_token(privKey, token_contract):
         if not rt:
             time.sleep(2)
             continue
+        # else:
+        #     if rt.get("result"):
+        #         sql = f"update testnet_airdrop_whitelist set airdrop=1, amount={amount} where id={recrod_id}"
+        #         print(sql)
+        #         cursor.execute(sql)
+        #         conn.commit()
+        #         nonce += 1
         else:
-            if rt.get("result"):
-                sql = f"update testnet_airdrop_whitelist set airdrop=1, amount={amount} where id={recrod_id}"
-                print(sql)
-                cursor.execute(sql)
-                conn.commit()
-                nonce += 1
-            else:
-                continue
+            continue
         time.sleep(0.5)
-    conn.close()
+    # conn.close()
 
 
 if __name__ == '__main__':
