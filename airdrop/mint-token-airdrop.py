@@ -259,7 +259,7 @@ def airdrop_gas(privKey):
     airdrop gas
     """
     airdrop_address = get_airdrop_address()
-    nonce = 7
+    nonce = 1
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -276,7 +276,7 @@ def airdrop_gas(privKey):
                 nonce += 1
             else:
                 continue
-        time.sleep(0.1)
+        time.sleep(0.3)
 
 
 if __name__ == '__main__':
@@ -285,5 +285,6 @@ if __name__ == '__main__':
     # airdrop_token(token_privKey, token_contract)
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
-    gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
     airdrop_gas(gas_privKey)
