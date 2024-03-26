@@ -72,15 +72,13 @@ class Rpc:
         res = requests.post(self.api, json=data, proxies=self.proxies, timeout=self.timeout)
         return res.json()#(int(res.json()['result'], 16)) / math.pow(10,18)
 
-    def transfer(self, account, to, amount, gaslimit, **kw):
-        amount = int(amount, 16) if isinstance(amount, str) else int(amount)
+    def transfer(self, account, to, amount, gaslimit, nonce=None, **kw):
+        transfer_amount = int(amount, 16) if isinstance(amount, str) else int(amount)
         gaslimit = int(gaslimit, 16) if not isinstance(gaslimit, int) else gaslimit
         gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
         max_gas_price = web3.Web3.to_wei(Decimal('0.1'), 'gwei')
-        transfer_amount = amount - (gaslimit * gas_price)
-        if transfer_amount < 0:
-            return False
-        nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
+        if not nonce:
+            nonce = int(self.get_transaction_count_by_address(account.address)['result'], 16)
         tx = {
             'from': account.address,
             'to': to,
@@ -96,7 +94,6 @@ class Rpc:
             tx.update(**kw)
         print(tx)
         signed = account.sign_transaction(tx)
-        print("txid:", signed.hash.hex())
         return self.send_raw_transaction(signed.rawTransaction.hex())
     
     def transfer_token(self, account, to, amount, gaslimit, nonce=None, **kw):
@@ -124,6 +121,7 @@ class Rpc:
         signed = account.sign_transaction(tx)
         return self.send_raw_transaction(signed.rawTransaction.hex())
 
+rpc = Rpc()
 
 def query(privkey, contract):
     """
@@ -166,35 +164,25 @@ def detect_balance(rpc, address):
     return False
 
 
-def transfer(privkey, address):
-    """
-    转账
-    """
-    rpc = Rpc()
+def main_transfer(privkey, to_address, nonce=None):
     account = web3.Account.from_key(privkey)
-    balance = detect_balance(rpc, account.address)
-    if balance:
-        res = rpc.transfer(account, address, balance, gaslimit=300000)
+
+    transfer_amount = web3.Web3.to_wei(Decimal('1'), 'gwei')
+
+    to = web3.Web3.to_checksum_address(to_address)
+    try:
+        res = rpc.transfer(account, to, transfer_amount, gaslimit=22000, nonce=nonce)
         print(res)
-    return True
-
-
-def main_transfer(privkey):
-    address = '0xA2d3cB65d9C05Da645a0206304D8eF7d7e67f82C'
-    while True:
-        try:
-            transfer(privkey, address)
-        except Exception as e:
-            print(e)
-            time.sleep(0.1)
-            continue
+        return res
+    except Exception as e:
+        print(e)
+        return False
 
 
 def main_transfer_token(privkey, token_contract, to_address, nonce=None, amount=1):
     """
     token转账
     """
-    rpc = Rpc()
     account = web3.Account.from_key(privkey)
 
     hex_amount = hex(web3.Web3.to_wei(amount, 'ether'))[2:]
@@ -266,11 +254,36 @@ def airdrop_token(privKey, token_contract):
     # conn.close()
 
 
+def airdrop_gas(privKey):
+    """
+    airdrop gas
+    """
+    airdrop_address = get_airdrop_address()
+    nonce = 7
+    for i in airdrop_address:
+        recrod_id = i.get("record_id")
+        address = str(i.get("address", ""))
+        if not address or not recrod_id:
+            continue
+        if len(address) != 42:
+            continue
+        rt = main_transfer(privKey, address, nonce=nonce)
+        if not rt:
+            time.sleep(2)
+            continue
+        else:
+            if rt.get("result"):
+                nonce += 1
+            else:
+                continue
+        time.sleep(0.1)
+
+
 if __name__ == '__main__':
     token_contract = '0xdF639a5224EcCca72F6D84EE30CA67E5E2223C98'
     token_privKey = os.environ.get("PRIVATE_KEY_BOME")
+    # airdrop_token(token_privKey, token_contract)
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
-    airdrop_token(token_privKey, token_contract)
-    # to_address = "0xCa261418513ea74Ef1416D5BBb1EDBe3d24dcB57"
-    # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
+    gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    airdrop_gas(gas_privKey)
