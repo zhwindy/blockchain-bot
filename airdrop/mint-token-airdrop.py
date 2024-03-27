@@ -167,7 +167,7 @@ def detect_balance(rpc, address):
 def main_transfer(privkey, to_address, nonce=None):
     account = web3.Account.from_key(privkey)
 
-    transfer_amount = web3.Web3.to_wei(Decimal('1'), 'gwei')
+    transfer_amount = web3.Web3.to_wei(Decimal('0.5'), 'gwei')
 
     to = web3.Web3.to_checksum_address(to_address)
     try:
@@ -258,8 +258,10 @@ def airdrop_gas(privKey):
     """
     airdrop gas
     """
+    account = web3.Account.from_key(privKey)
+    
     airdrop_address = get_airdrop_address()
-    nonce = 1
+    nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -276,7 +278,7 @@ def airdrop_gas(privKey):
                 nonce += 1
             else:
                 continue
-        time.sleep(0.3)
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':
@@ -286,5 +288,5 @@ if __name__ == '__main__':
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
     # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
-    gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
+    gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
     airdrop_gas(gas_privKey)

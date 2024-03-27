@@ -17,8 +17,8 @@ w3 = Web3(Web3.HTTPProvider(NODE_URL))
 FROM_ADDRESS_01 = "0x6C9d0DE7F98664647319461895f14F170f190CCA"
 FROM_ADDRESS_02 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
-private_key_01 = os.environ.get("PRIVATE_KEY_01")
-private_key_02 = os.environ.get("PRIVATE_KEY_02")
+private_key_01 = os.environ.get("PRIVATE_KEY_OL")
+private_key_02 = os.environ.get("PRIVATE_KEY_MIS")
 
 TO_ADDRESS_NULL = None
 TO_ADDRESS_01 = "0x5F00163E536c2f3626FE8ccFfeb11b64536BB0aF"
