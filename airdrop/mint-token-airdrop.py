@@ -287,6 +287,6 @@ if __name__ == '__main__':
     # airdrop_token(token_privKey, token_contract)
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
-    # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
-    gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
+    gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
     airdrop_gas(gas_privKey)
