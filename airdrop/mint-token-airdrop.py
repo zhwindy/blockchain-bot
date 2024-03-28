@@ -283,10 +283,11 @@ def airdrop_gas(privKey):
 
 if __name__ == '__main__':
     token_contract = '0xdF639a5224EcCca72F6D84EE30CA67E5E2223C98'
-    token_privKey = os.environ.get("PRIVATE_KEY_BOME")
     # airdrop_token(token_privKey, token_contract)
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
-    gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
+    gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
     # gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
     airdrop_gas(gas_privKey)
