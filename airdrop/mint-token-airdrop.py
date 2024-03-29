@@ -220,6 +220,24 @@ def get_airdrop_address(airdrop_type=None):
     return records
 
 
+def get_airdrop_blue_address():
+    conn = get_conn(database='mint')
+    cursor = conn.cursor()
+    sql = "SELECT address FROM eth_blue_chip_owners"
+    records = []
+    try:
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        for r in result:
+            info = {"address": ''}
+            info['address'] = r[0]
+            records.append(info)
+    except Exception as e:
+        print(e)
+    conn.close()
+    return records
+
+
 def airdrop_token(privKey, token_contract):
     """
     token airdrop
@@ -261,11 +279,11 @@ def airdrop_gas(privKey):
     account = web3.Account.from_key(privKey)
     
     airdrop_address = get_airdrop_address()
+
     nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
     for i in airdrop_address:
-        recrod_id = i.get("record_id")
-        address = str(i.get("address", ""))
-        if not address or not recrod_id:
+        address = str(i.get("address", "")).strip()
+        if not address:
             continue
         if len(address) != 42:
             continue
@@ -277,8 +295,35 @@ def airdrop_gas(privKey):
             if rt.get("result"):
                 nonce += 1
             else:
-                continue
+                break
         time.sleep(0.1)
+
+
+def airdrop_gas_2(privKey):
+    """
+    airdrop gas
+    """
+    account = web3.Account.from_key(privKey)
+    
+    airdrop_address = get_airdrop_blue_address()
+
+    nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
+    for i in airdrop_address:
+        address = str(i.get("address", "")).strip()
+        if not address:
+            continue
+        if len(address) != 42:
+            continue
+        rt = main_transfer(privKey, address, nonce=nonce)
+        if not rt:
+            time.sleep(2)
+            continue
+        else:
+            if rt.get("result"):
+                nonce += 1
+            else:
+                break
+        time.sleep(0.2)
 
 
 if __name__ == '__main__':
@@ -287,7 +332,8 @@ if __name__ == '__main__':
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
     # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
-    gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
-    # gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
-    airdrop_gas(gas_privKey)
+    gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
+    # airdrop_gas(gas_privKey)
+    airdrop_gas_2(gas_privKey)
