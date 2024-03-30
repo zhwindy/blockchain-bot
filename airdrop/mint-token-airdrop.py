@@ -238,6 +238,24 @@ def get_airdrop_blue_address():
     return records
 
 
+def get_airdrop_1155_address():
+    conn = get_conn(database='mint')
+    cursor = conn.cursor()
+    sql = "SELECT address FROM blast_1155_owner"
+    records = []
+    try:
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        for r in result:
+            info = {"address": ''}
+            info['address'] = r[0]
+            records.append(info)
+    except Exception as e:
+        print(e)
+    conn.close()
+    return records
+
+
 def airdrop_token(privKey, token_contract):
     """
     token airdrop
@@ -305,7 +323,7 @@ def airdrop_gas_2(privKey):
     """
     account = web3.Account.from_key(privKey)
     
-    airdrop_address = get_airdrop_blue_address()
+    airdrop_address = get_airdrop_1155_address()
 
     nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
     for i in airdrop_address:
