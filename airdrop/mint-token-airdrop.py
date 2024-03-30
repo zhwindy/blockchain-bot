@@ -352,6 +352,7 @@ if __name__ == '__main__':
     # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
-    gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
+    gas_privKey = os.environ.get("PRIVATE_KEY_OL")
     # airdrop_gas(gas_privKey)
     airdrop_gas_2(gas_privKey)
