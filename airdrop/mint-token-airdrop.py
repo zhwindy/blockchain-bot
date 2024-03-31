@@ -341,7 +341,7 @@ def airdrop_gas_2(privKey):
                 nonce += 1
             else:
                 break
-        time.sleep(0.1)
+        time.sleep(0.2)
 
 
 if __name__ == '__main__':
@@ -349,9 +349,9 @@ if __name__ == '__main__':
     # airdrop_token(token_privKey, token_contract)
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
-    # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    gas_privKey = os.environ.get("PRIVATE_KEY_AD")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
-    gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
     # gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
     # gas_privKey = os.environ.get("PRIVATE_KEY_OL")
     # airdrop_gas(gas_privKey)
