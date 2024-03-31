@@ -271,7 +271,7 @@ def airdrop_token(privKey, token_contract):
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
-        if not address or not recrod_id:
+        if not address:
             continue
         if len(address) != 42:
             continue
