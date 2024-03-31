@@ -262,10 +262,12 @@ def airdrop_token(privKey, token_contract):
     """
     # conn = get_conn(database='mint')
     # cursor = conn.cursor()
+    account = web3.Account.from_key(privKey)
 
     # airdrop_address = get_airdrop_address()
     airdrop_address = get_airdrop_1155_address()
-    nonce = 5
+
+    nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
