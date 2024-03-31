@@ -264,8 +264,8 @@ def airdrop_token(privKey, token_contract):
     # cursor = conn.cursor()
     account = web3.Account.from_key(privKey)
 
-    # airdrop_address = get_airdrop_address()
-    airdrop_address = get_airdrop_1155_address()
+    airdrop_address = get_airdrop_address()
+    # airdrop_address = get_airdrop_1155_address()
 
     nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
     for i in airdrop_address:
@@ -289,7 +289,7 @@ def airdrop_token(privKey, token_contract):
                 nonce += 1
             else:
                 break
-        time.sleep(0.5)
+        time.sleep(5)
     # conn.close()
 
 
