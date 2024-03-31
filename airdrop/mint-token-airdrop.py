@@ -288,7 +288,7 @@ def airdrop_token(privKey, token_contract):
         #         conn.commit()
                 nonce += 1
             else:
-                continue
+                break
         time.sleep(0.5)
     # conn.close()
 
