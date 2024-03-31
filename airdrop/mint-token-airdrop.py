@@ -263,7 +263,8 @@ def airdrop_token(privKey, token_contract):
     # conn = get_conn(database='mint')
     # cursor = conn.cursor()
 
-    airdrop_address = get_airdrop_address()
+    # airdrop_address = get_airdrop_address()
+    airdrop_address = get_airdrop_1155_address()
     nonce = 5
     for i in airdrop_address:
         recrod_id = i.get("record_id")
@@ -345,14 +346,15 @@ def airdrop_gas_2(privKey):
 
 
 if __name__ == '__main__':
-    token_contract = '0xdF639a5224EcCca72F6D84EE30CA67E5E2223C98'
-    # airdrop_token(token_privKey, token_contract)
+    # token_contract = '0xdF639a5224EcCca72F6D84EE30CA67E5E2223C98'
+    token_contract = '0x28E09Cc0185f63b9DF61225772b537f7D26b5BA1'
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
-    gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
-    # gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
+    gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
     # gas_privKey = os.environ.get("PRIVATE_KEY_OL")
+    airdrop_token(gas_privKey, token_contract)
     # airdrop_gas(gas_privKey)
-    airdrop_gas_2(gas_privKey)
+    # airdrop_gas_2(gas_privKey)
