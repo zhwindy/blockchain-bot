@@ -241,7 +241,7 @@ def get_airdrop_blue_address():
 def get_airdrop_1155_address():
     conn = get_conn(database='mint')
     cursor = conn.cursor()
-    sql = "SELECT address FROM blast_1155_owner"
+    sql = "SELECT address FROM blast_1155_owner order by id desc"
     records = []
     try:
         cursor.execute(sql)
@@ -341,7 +341,7 @@ def airdrop_gas_2(privKey):
                 nonce += 1
             else:
                 break
-        time.sleep(0.2)
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':
@@ -351,8 +351,8 @@ if __name__ == '__main__':
     # print(mint_token(token_privKey, token_contract))
     # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
-    # gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
+    gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
     # gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
-    gas_privKey = os.environ.get("PRIVATE_KEY_OL")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_OL")
     # airdrop_gas(gas_privKey)
     airdrop_gas_2(gas_privKey)
