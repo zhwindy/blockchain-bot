@@ -12,7 +12,7 @@ class Rpc:
     """
     eth rpc方法
     """
-    def __init__(self, api='https://testnet-rpc.mintchain.io', chainid=1686, proxies=None, timeout=30):
+    def __init__(self, api='https://sepolia.rpc.mintchain.io', chainid=1687, proxies=None, timeout=30):
         self.api = api
         self.chainid = chainid
         self.proxies = proxies
@@ -289,7 +289,7 @@ def airdrop_token(privKey, token_contract):
                 nonce += 1
             else:
                 break
-        time.sleep(5)
+        time.sleep(3)
     # conn.close()
 
 
@@ -349,13 +349,13 @@ def airdrop_gas_2(privKey):
 
 if __name__ == '__main__':
     # token_contract = '0xdF639a5224EcCca72F6D84EE30CA67E5E2223C98'
-    token_contract = '0x28E09Cc0185f63b9DF61225772b537f7D26b5BA1'
+    token_contract = '0x1D843F5869C0fC63DfEFD6549EcD4bccCfaE4e0a'
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
-    # gas_privKey = os.environ.get("PRIVATE_KEY_AD")
+    gas_privKey = os.environ.get("PRIVATE_KEY_AD")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BAT")
     # gas_privKey = os.environ.get("PRIVATE_KEY_BOME")
-    gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
+    # gas_privKey = os.environ.get("PRIVATE_KEY_SAM")
     # gas_privKey = os.environ.get("PRIVATE_KEY_OL")
     airdrop_token(gas_privKey, token_contract)
     # airdrop_gas(gas_privKey)
