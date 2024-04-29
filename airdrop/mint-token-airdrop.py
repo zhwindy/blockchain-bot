@@ -135,18 +135,18 @@ def query(privkey, contract):
     return res
 
 
-def mint_token(privkey, token_contract):
+def mint_token(privkey, token_contract, to_address, nonce=None, token_amount=100):
     """
     mint
     """
     account = web3.Account.from_key(privkey)
     rpc = Rpc()
 
-    amount = hex(web3.Web3.to_wei(1000*10**8, 'ether'))[2:]
-    data = '0x40c10f19' + '000000000000000000000000' + account.address[2:] + amount.rjust(64, '0')
+    amount = hex(web3.Web3.to_wei(token_amount, 'ether'))[2:]
+    data = '0x40c10f19' + '000000000000000000000000' + to_address.lower()[2:] + amount.rjust(64, '0')
     to = web3.Web3.to_checksum_address(token_contract)
 
-    res = rpc.transfer_token(account, to, 0, gaslimit=85000, data=data)
+    res = rpc.transfer_token(account, to, 0, gaslimit=85000, nonce=nonce, data=data)
 
     return res
 
@@ -256,9 +256,10 @@ def get_airdrop_1155_address():
     return records
 
 
-def airdrop_token(privKey, token_contract):
+def airdrop_token(privKey, token_contract, drop_type='mint'):
     """
     token airdrop
+    drop_type: 1.transfer 2.mint
     """
     # conn = get_conn(database='mint')
     # cursor = conn.cursor()
@@ -276,7 +277,10 @@ def airdrop_token(privKey, token_contract):
         if len(address) != 42:
             continue
         amount = random.randint(100,10000)
-        rt = main_transfer_token(privKey, token_contract, address, nonce=nonce, amount=amount)
+        if drop_type == 'transfer':
+            rt = main_transfer_token(privKey, token_contract, address, nonce=nonce, amount=amount)
+        else:
+            rt = mint_token(privKey, token_contract, address, nonce=nonce, amount=amount)
         if not rt:
             time.sleep(2)
             continue
@@ -349,7 +353,7 @@ def airdrop_gas_2(privKey):
 
 if __name__ == '__main__':
     # token_contract = '0xdF639a5224EcCca72F6D84EE30CA67E5E2223C98'
-    token_contract = '0x1D843F5869C0fC63DfEFD6549EcD4bccCfaE4e0a'
+    token_contract = '0x73ED7F8739b6Cdb9ABdBb8e7Da73b90FeD423CAD'
     # print(query(token_privKey, token_contract))
     # print(mint_token(token_privKey, token_contract))
     gas_privKey = os.environ.get("PRIVATE_KEY_AD")
