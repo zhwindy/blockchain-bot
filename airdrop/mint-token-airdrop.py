@@ -280,7 +280,7 @@ def airdrop_token(privKey, token_contract, drop_type='mint'):
         if drop_type == 'transfer':
             rt = main_transfer_token(privKey, token_contract, address, nonce=nonce, amount=amount)
         else:
-            rt = mint_token(privKey, token_contract, address, nonce=nonce, amount=amount)
+            rt = mint_token(privKey, token_contract, address, nonce=nonce, token_amount=amount)
         if not rt:
             time.sleep(2)
             continue
