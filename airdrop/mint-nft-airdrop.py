@@ -12,7 +12,7 @@ class Rpc:
     """
     eth rpc方法
     """
-    def __init__(self, api='https://testnet-rpc.mintchain.io', chainid=1686, proxies=None, timeout=30):
+    def __init__(self, api='https://sepolia.rpc.mintchain.io', chainid=1687, proxies=None, timeout=30):
         self.api = api
         self.chainid = chainid
         self.proxies = proxies
@@ -124,6 +124,7 @@ class Rpc:
         signed = account.sign_transaction(tx)
         return self.send_raw_transaction(signed.rawTransaction.hex())
 
+rpc = Rpc()
 
 def query(privkey, contract):
     """
@@ -249,55 +250,18 @@ def get_airdrop_address(airdrop_type=None):
     return records
 
 
-def airdrop_token(privKey, token_contract):
-    """
-    token airdrop
-    """
-    conn = get_conn(database='mint')
-    cursor = conn.cursor()
-
-    airdrop_address = get_airdrop_address()
-    nonce = 209400
-    for i in airdrop_address:
-        recrod_id = i.get("record_id")
-        address = str(i.get("address", ""))
-        if not address or not recrod_id:
-            continue
-        if len(address) != 42:
-            continue
-        amount = random.randint(1000,100000)
-        rt = main_transfer_token(privKey, token_contract, address, nonce=nonce, amount=amount)
-        if not rt:
-            time.sleep(2)
-            continue
-        else:
-            if rt.get("result"):
-                sql = f"update testnet_airdrop_whitelist set airdrop=1, amount={amount} where id={recrod_id}"
-                print(sql)
-                cursor.execute(sql)
-                conn.commit()
-                nonce += 1
-            else:
-                continue
-                error =  rt.get("error")
-                if not error:
-                    break
-                msg = error.get("message")
-                if msg.find('replacement transaction underpriced') != -1:
-                    continue
-        time.sleep(3)
-    conn.close()
-
-
 def airdrop_nft(privKey, token_contract):
     """
     nft airdrop
     """
+    account = web3.Account.from_key(privKey)
+
     conn = get_conn(database='mint')
     cursor = conn.cursor()
 
     airdrop_address = get_airdrop_address(airdrop_type='nft')
-    nonce = 44242
+
+    nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
     for i in airdrop_address:
         recrod_id = i.get("record_id")
         address = str(i.get("address", ""))
@@ -308,7 +272,7 @@ def airdrop_nft(privKey, token_contract):
         rt = mint_nft(privKey, token_contract, address, nonce=nonce)
         if not rt:
             time.sleep(2)
-            continue
+            break
         else:
             if rt.get("result"):
                 sql = f"update testnet_airdrop_whitelist set nft_drop=1 where id={recrod_id}"
@@ -317,20 +281,14 @@ def airdrop_nft(privKey, token_contract):
                 conn.commit()
                 nonce += 1
             else:
-                continue
+                break
         time.sleep(2)
     conn.close()
 
 
 if __name__ == '__main__':
-    token_contract = '0x4ae6D009f463A8c80F382eAE7c1E880B077179d8'
-    nft_contract = '0x6C57C2432083fb84E935dB9076c973A2Dea0727A'
-    token_privKey = os.environ.get("PRIVATE_KEY_01")
-    nft_privKey = os.environ.get("PRIVATE_KEY_SAM")
-    # print(query(token_privKey, token_contract))
-    # print(mint_token(token_privKey, token_contract))
-    # airdrop_token(token_privKey, token_contract)
+    nft_contract = '0x7517F010236bDbAf5E6B5049102566424B128B02'
+    nft_privKey = os.environ.get("PRIVATE_KEY_OL")
     # to_address = "0xCa261418513ea74Ef1416D5BBb1EDBe3d24dcB57"
     # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
-    # airdrop_token(token_privKey, token_contract)
     airdrop_nft(nft_privKey, nft_contract)
