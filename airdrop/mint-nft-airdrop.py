@@ -282,7 +282,7 @@ def airdrop_nft(privKey, token_contract):
                 nonce += 1
             else:
                 break
-        time.sleep(2)
+        time.sleep(5)
     conn.close()
 
 
