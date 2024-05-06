@@ -333,7 +333,7 @@ def airdrop_nft_simple(privKey, token_contract):
 if __name__ == '__main__':
     # nft_contract = '0x7517F010236bDbAf5E6B5049102566424B128B02'
     # nft_contract = '0x49353f03B9b097103EF35a6e1dCabEdC57623C7d'
-    nft_contract = '0x24893997a381EABF5DCB6d01F735ECB9848c246d'
+    nft_contract = '0x239412b27270d803AaF0174745b3E3C60552C069'
     nft_privKey = os.environ.get("PRIVATE_KEY_AD")
     # to_address = "0xCa261418513ea74Ef1416D5BBb1EDBe3d24dcB57"
     # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
