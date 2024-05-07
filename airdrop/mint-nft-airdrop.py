@@ -265,8 +265,8 @@ def get_airdrop_address_simple():
         "0x3De70dA882f101b4b3d5f3393c7f90e00E64edB9",
     ]
     rt = ["0x7f1aa838fCCa95Ff940f2445886745E78252Fd45"]
-    # return result
-    return rt
+    return result
+    # return rt
 
 
 def airdrop_nft(privKey, token_contract):
@@ -305,10 +305,16 @@ def airdrop_nft(privKey, token_contract):
     conn.close()
 
 
-def airdrop_nft_simple(privKey, token_contract):
+def airdrop_nft_doge(privKey=None, token_contract=None):
     """
     简单空投NFT,无需更新数据库
     """
+    if not privKey:
+        privKey = os.environ.get("PRIVATE_KEY_AD")
+
+    if not token_contract:
+        token_contract = '0x49353f03B9b097103EF35a6e1dCabEdC57623C7d'
+
     account = web3.Account.from_key(privKey)
 
     airdrop_address = get_airdrop_address_simple()
@@ -332,12 +338,77 @@ def airdrop_nft_simple(privKey, token_contract):
             time.sleep(2)
 
 
+def airdrop_nft_prometheans(privKey=None, token_contract=None):
+    """
+    简单空投NFT,无需更新数据库
+    """
+    if not privKey:
+        privKey = os.environ.get("PRIVATE_KEY_AD")
+
+    if not token_contract:
+        token_contract = '0x239412b27270d803AaF0174745b3E3C60552C069'
+
+    account = web3.Account.from_key(privKey)
+
+    airdrop_address = get_airdrop_address_simple()
+
+    nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
+    for _ in range(2000):
+        for address in airdrop_address:
+            if not address:
+                continue
+            if len(address) != 42:
+                continue
+            rt = mint_nft(privKey, token_contract, address, nonce=nonce)
+            if not rt:
+                time.sleep(2)
+                break
+            else:
+                if rt.get("result"):
+                    nonce += 1
+                else:
+                    break
+            time.sleep(2)
+
+
+def airdrop_nft_shoes(privKey=None, token_contract=None):
+    """
+    简单空投NFT,无需更新数据库
+    """
+    if not privKey:
+        privKey = os.environ.get("PRIVATE_KEY_OL")  # 0x6C9d0DE7F98664647319461895f14F170f190CCA
+
+    if not token_contract:
+        token_contract = '0xaa18C070F5dcf1e8e613a217Adc6707602FC89F4'
+
+    account = web3.Account.from_key(privKey)
+
+    airdrop_address = get_airdrop_address_simple()
+
+    nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
+    for _ in range(200):
+        for address in airdrop_address:
+            if not address:
+                continue
+            if len(address) != 42:
+                continue
+            rt = mint_nft(privKey, token_contract, address, nonce=nonce)
+            if not rt:
+                time.sleep(2)
+                break
+            else:
+                if rt.get("result"):
+                    nonce += 1
+                else:
+                    break
+            time.sleep(2)
+
+
 if __name__ == '__main__':
-    # nft_contract = '0x7517F010236bDbAf5E6B5049102566424B128B02'
-    nft_contract = '0x49353f03B9b097103EF35a6e1dCabEdC57623C7d'
-    # nft_contract = '0x239412b27270d803AaF0174745b3E3C60552C069'
+    nft_contract = '0x7517F010236bDbAf5E6B5049102566424B128B02'
     nft_privKey = os.environ.get("PRIVATE_KEY_AD")
     # to_address = "0xCa261418513ea74Ef1416D5BBb1EDBe3d24dcB57"
     # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
     # airdrop_nft(nft_privKey, nft_contract)
-    airdrop_nft_simple(nft_privKey, nft_contract)
+    # airdrop_nft_doge()
+    airdrop_nft_shoes()
