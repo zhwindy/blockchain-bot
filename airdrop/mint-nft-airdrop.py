@@ -364,14 +364,14 @@ def airdrop_nft_prometheans(privKey=None, token_contract=None):
                 continue
             rt = mint_nft(privKey, token_contract, address, nonce=nonce)
             if not rt:
-                time.sleep(2)
+                time.sleep(5)
                 break
             else:
                 if rt.get("result"):
                     nonce += 1
                 else:
                     break
-            time.sleep(2)
+            time.sleep(5)
 
 
 def airdrop_nft_shoes(privKey=None, token_contract=None):
@@ -414,5 +414,5 @@ if __name__ == '__main__':
     # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
     # airdrop_nft(nft_privKey, nft_contract)
     # airdrop_nft_doge()
-    airdrop_nft_shoes()
-    # airdrop_nft_prometheans()
+    # airdrop_nft_shoes()
+    airdrop_nft_prometheans()
