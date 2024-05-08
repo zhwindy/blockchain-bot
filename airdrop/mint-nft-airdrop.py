@@ -250,23 +250,26 @@ def get_airdrop_address(airdrop_type=None):
     return records
 
 
-def get_airdrop_address_simple():
-    result = [
-        "0x7f1aa838fCCa95Ff940f2445886745E78252Fd45",
-        "0x3580522C5998fcE4eBE9eBd1bFC1338e940c974f",
-        "0x5CE21AB35189cdFA6364b1B725f3F62032100E84",
-        "0xcA1F5EfC5Fb73CE3Ed7a092a2eBa8738Abf18852",
-        "0xBE2E3D1bB4839CDD65e5ACa8a7631d7BBA9B4a2f",
-        "0x14e4C12A2817f09518c1447D05Af0C772Af9b592",
-        "0x2Fda106338E16110B589f6aea442421A1ECe8A71",
-        "0x060368C9765153CD6Adb5a200731591DEceFf114",
-        "0xcBC1955CC42e73A0a7A0c59F6c10118D5f4e37F4",
-        "0x52Aa22a1baF886964F5756B9694F0BA67Ab7f839",
-        "0x3De70dA882f101b4b3d5f3393c7f90e00E64edB9",
-    ]
-    rt = ["0x7f1aa838fCCa95Ff940f2445886745E78252Fd45"]
+def get_airdrop_address_simple(amount=None):
+    if not amount:
+        result = [
+            "0x7f1aa838fCCa95Ff940f2445886745E78252Fd45",
+            "0x3580522C5998fcE4eBE9eBd1bFC1338e940c974f",
+            "0x5CE21AB35189cdFA6364b1B725f3F62032100E84",
+            "0xcA1F5EfC5Fb73CE3Ed7a092a2eBa8738Abf18852",
+            "0xBE2E3D1bB4839CDD65e5ACa8a7631d7BBA9B4a2f",
+            "0x14e4C12A2817f09518c1447D05Af0C772Af9b592",
+            "0x2Fda106338E16110B589f6aea442421A1ECe8A71",
+            "0x060368C9765153CD6Adb5a200731591DEceFf114",
+            "0xcBC1955CC42e73A0a7A0c59F6c10118D5f4e37F4",
+            "0x52Aa22a1baF886964F5756B9694F0BA67Ab7f839",
+            "0x3De70dA882f101b4b3d5f3393c7f90e00E64edB9",
+        ]
+    elif amount == 1:
+        result = ["0x7f1aa838fCCa95Ff940f2445886745E78252Fd45"]
+    else:
+        result = ["0x7f1aa838fCCa95Ff940f2445886745E78252Fd45"]
     return result
-    # return rt
 
 
 def airdrop_nft(privKey, token_contract):
@@ -353,7 +356,7 @@ def airdrop_nft_prometheans(privKey=None, token_contract=None):
     airdrop_address = get_airdrop_address_simple()
 
     nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
-    for _ in range(2000):
+    for _ in range(500):
         for address in airdrop_address:
             if not address:
                 continue
@@ -411,4 +414,5 @@ if __name__ == '__main__':
     # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
     # airdrop_nft(nft_privKey, nft_contract)
     # airdrop_nft_doge()
-    airdrop_nft_shoes()
+    # airdrop_nft_shoes()
+    airdrop_nft_prometheans()
