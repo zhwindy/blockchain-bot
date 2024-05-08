@@ -389,7 +389,7 @@ def airdrop_nft_shoes(privKey=None, token_contract=None):
     airdrop_address = get_airdrop_address_simple()
 
     nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
-    for _ in range(200):
+    for _ in range(300):
         for address in airdrop_address:
             if not address:
                 continue
@@ -414,5 +414,5 @@ if __name__ == '__main__':
     # print(mint_nft(nft_privKey, nft_contract, to_address=to_address))
     # airdrop_nft(nft_privKey, nft_contract)
     # airdrop_nft_doge()
-    # airdrop_nft_shoes()
-    airdrop_nft_prometheans()
+    airdrop_nft_shoes()
+    # airdrop_nft_prometheans()
