@@ -407,6 +407,39 @@ def airdrop_nft_shoes(privKey=None, token_contract=None):
             time.sleep(2)
 
 
+def airdrop_nft_bear(privKey=None, token_contract=None):
+    """
+    简单空投NFT,无需更新数据库
+    """
+    if not privKey:
+        privKey = os.environ.get("PRIVATE_KEY_AD")
+
+    if not token_contract:
+        token_contract = '0x8Bfc3Fe97f56973d8045AEF0133B46754d6Ff2e4'
+
+    account = web3.Account.from_key(privKey)
+
+    airdrop_address = get_airdrop_address_simple()
+
+    nonce = int(rpc.get_transaction_count_by_address(account.address)['result'], 16)
+    for _ in range(600):
+        for address in airdrop_address:
+            if not address:
+                continue
+            if len(address) != 42:
+                continue
+            rt = mint_nft(privKey, token_contract, address, nonce=nonce)
+            if not rt:
+                time.sleep(2)
+                break
+            else:
+                if rt.get("result"):
+                    nonce += 1
+                else:
+                    break
+            time.sleep(2)
+
+
 if __name__ == '__main__':
     nft_contract = '0x7517F010236bDbAf5E6B5049102566424B128B02'
     nft_privKey = os.environ.get("PRIVATE_KEY_AD")
@@ -415,4 +448,5 @@ if __name__ == '__main__':
     # airdrop_nft(nft_privKey, nft_contract)
     # airdrop_nft_doge()
     # airdrop_nft_shoes()
-    airdrop_nft_prometheans()
+    # airdrop_nft_prometheans()
+    airdrop_nft_bear()
