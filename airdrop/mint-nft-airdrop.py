@@ -430,14 +430,14 @@ def airdrop_nft_bear(privKey=None, token_contract=None):
                 continue
             rt = mint_nft(privKey, token_contract, address, nonce=nonce)
             if not rt:
-                time.sleep(2)
+                time.sleep(4)
                 break
             else:
                 if rt.get("result"):
                     nonce += 1
                 else:
                     break
-            time.sleep(2)
+            time.sleep(4)
 
 
 if __name__ == '__main__':
