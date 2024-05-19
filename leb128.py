@@ -23,6 +23,7 @@ def decode_sequence():
     # hex_string = "0203049af8b1b1ed88a3ccc602039122052406a08d060a904e08a08d06"
     # hex_string = "020503880204e4fce3c6e8a4acb90805cce60706017f8190e912"
     # hex_string = "14e2a73314d91a1600"
+    hex_string = "020704a0a7d59cd5bce6f718010203880105b12d068084af5f0ab0cc0b08904e103212d0171601"
 
     data = [int(hex_string[i:i+2], 16) for i in range(0, len(hex_string), 2)]
 
